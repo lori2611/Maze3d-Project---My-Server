@@ -54,4 +54,9 @@ public class CLI extends CommonView {
 		out.flush();
 	}
 
+	@Override
+	public void displayException(Exception e) {
+		e.printStackTrace();
+	}
+
 }

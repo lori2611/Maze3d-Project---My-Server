@@ -58,7 +58,7 @@ public class Presenter implements Observer{
 	private void analyzeModelOutput(Object obj) {
 		if(obj instanceof Exception)
 		{
-			v.displayMessage(((Exception) obj).getMessage());
+			v.displayException((Exception)obj);
 			return;
 		}
 		if(obj instanceof String)

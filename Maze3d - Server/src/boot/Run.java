@@ -9,6 +9,7 @@ import model.MyModel;
 import presenter.Presenter;
 import view.CLI;
 import view.CommonView;
+import view.GUI;
 
 public class Run {
 
@@ -17,8 +18,9 @@ public class Run {
 		CommonModel m = new MyModel();
 		
 		// Create view
-		CommonView v = new CLI(new BufferedReader(new InputStreamReader(System.in)), new PrintWriter(System.out));
+		// CommonView v = new CLI(new BufferedReader(new InputStreamReader(System.in)), new PrintWriter(System.out));
 		
+		CommonView v = new GUI();
 		// Create presenter
 		Presenter p = new Presenter(m, v);
 		

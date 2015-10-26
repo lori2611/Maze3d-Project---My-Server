@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -19,7 +20,7 @@ public class MyModel extends CommonModel{
 
 	private int numOfClients; // Given by XML file
 	private int port; // Given by XML file
-	private boolean stop;
+	public static boolean stop;
 	private ExecutorService threadpool;
 	private ServerSocket server;
 	private Thread mainServerThread;
@@ -27,13 +28,15 @@ public class MyModel extends CommonModel{
 	private XMLDecoder decoder;
 	private CommunicationProperties cp;
 	private int clientsHandled;
+	private boolean serverIsClose;
 	
 	public MyModel() {
 		setXML();
 		this.clientsHandled = 0;
 		this.clientHandler = new MyClientHandler();
 		threadpool=Executors.newFixedThreadPool(cp.getNumOfClients());
-		this.stop = false;
+		MyModel.stop = false;
+		this.serverIsClose = true;
 	}
 	
 	/**
@@ -57,14 +60,20 @@ public class MyModel extends CommonModel{
 	}
 	
 	@Override
-	public void open() throws IOException {
-			server=new ServerSocket(this.cp.getPort());
-			server.setSoTimeout(50*1000);
+	public void open() {
+		
+			try {
+				server=new ServerSocket(this.cp.getPort());
+				server.setSoTimeout(10*1000);
+				this.serverIsClose = false;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			
 			mainServerThread=new Thread(new Runnable() {			
 				@Override
 				public void run() {
-					while(!stop){
+					while(!MyModel.stop){
 						try {
 							final Socket someClient=server.accept();
 							if(someClient!=null){
@@ -105,16 +114,20 @@ public class MyModel extends CommonModel{
 	}
 
 	@Override
-	public void close() throws Exception{
-		this.stop=true;	
+	public void close() {
+		if(this.serverIsClose == false)
+		{
+		this.serverIsClose = true;
+		MyModel.stop=true;	
+		try {
 		this.clientHandler.saveToZip();
+		
 		// do not execute jobs in queue, continue to execute running threads
 		setChanged();
 		notifyObservers("shutting down");
 		threadpool.shutdown();
 		// wait 10 seconds over and over again until all running jobs have finished
-		boolean allTasksCompleted=false;
-		while(!(allTasksCompleted=threadpool.awaitTermination(10, TimeUnit.SECONDS)));
+		while(!(threadpool.awaitTermination(10, TimeUnit.SECONDS)));
 		setChanged();
 		notifyObservers("all the tasks have finished");
 		mainServerThread.join();		
@@ -123,6 +136,11 @@ public class MyModel extends CommonModel{
 		server.close();
 		setChanged();
 		notifyObservers("server is safely closed");
+		} catch (Exception e) {
+			setChanged();
+			notifyObservers(e);
+		}
+		}
 	}
 
 }
