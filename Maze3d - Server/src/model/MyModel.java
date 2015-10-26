@@ -34,7 +34,7 @@ public class MyModel extends CommonModel{
 		setXML();
 		this.clientsHandled = 0;
 		this.clientHandler = new MyClientHandler();
-		threadpool=Executors.newFixedThreadPool(cp.getNumOfClients());
+		threadpool=Executors.newFixedThreadPool(numOfClients);
 		MyModel.stop = false;
 		this.serverIsClose = true;
 	}
@@ -63,11 +63,12 @@ public class MyModel extends CommonModel{
 	public void open() {
 		
 			try {
-				server=new ServerSocket(this.cp.getPort());
+				server=new ServerSocket(port);
 				server.setSoTimeout(10*1000);
 				this.serverIsClose = false;
 			} catch (IOException e) {
-				e.printStackTrace();
+				setChanged();
+				notifyObservers(e);
 			}
 			
 			mainServerThread=new Thread(new Runnable() {			
@@ -75,7 +76,7 @@ public class MyModel extends CommonModel{
 				public void run() {
 					while(!MyModel.stop){
 						try {
-							final Socket someClient=server.accept();
+							final Socket someClient=server.accept(); // Listens for a connection to be made to this socket and accepts it
 							if(someClient!=null){
 								threadpool.execute(new Runnable() {									
 									@Override
@@ -115,31 +116,33 @@ public class MyModel extends CommonModel{
 
 	@Override
 	public void close() {
-		if(this.serverIsClose == false)
-		{
-		this.serverIsClose = true;
-		MyModel.stop=true;	
-		try {
-		this.clientHandler.saveToZip();
-		
-		// do not execute jobs in queue, continue to execute running threads
-		setChanged();
-		notifyObservers("shutting down");
-		threadpool.shutdown();
-		// wait 10 seconds over and over again until all running jobs have finished
-		while(!(threadpool.awaitTermination(10, TimeUnit.SECONDS)));
-		setChanged();
-		notifyObservers("all the tasks have finished");
-		mainServerThread.join();		
-		setChanged();
-		notifyObservers("main server thread is done");
-		server.close();
-		setChanged();
-		notifyObservers("server is safely closed");
-		} catch (Exception e) {
-			setChanged();
-			notifyObservers(e);
-		}
+		if (this.serverIsClose == false) {
+			this.serverIsClose = true;
+			MyModel.stop = true;
+			try {
+				this.clientHandler.saveToZip();
+
+				// do not execute jobs in queue, continue to execute running
+				// threads
+				setChanged();
+				notifyObservers("shutting down");
+				threadpool.shutdown();
+				// wait 10 seconds over and over again until all running jobs
+				// have finished
+				while (!(threadpool.awaitTermination(10, TimeUnit.SECONDS)))
+					;
+				setChanged();
+				notifyObservers("all the tasks have finished");
+				mainServerThread.join(); // Close the main thread after all the clients are done
+				setChanged();
+				notifyObservers("main server thread is done");
+				server.close();
+				setChanged();
+				notifyObservers("server is safely closed");
+			} catch (Exception e) {
+				setChanged();
+				notifyObservers(e);
+			}
 		}
 	}
 

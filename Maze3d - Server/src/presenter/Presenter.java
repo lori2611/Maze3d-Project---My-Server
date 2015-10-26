@@ -1,3 +1,6 @@
+/*
+ * 
+ */
 package presenter;
 
 import java.io.IOException;
@@ -14,12 +17,23 @@ import view.View;
 
 public class Presenter implements Observer{
 
+	/** The v. */
 	private View v;
+	
+	/** The m. */
 	private Model m;
+	
+	/** The commands. */
 	private HashMap<String, Command> commands;
 	
+	/** The Constant COMMAND_ERR. */
 	public static final String COMMAND_ERR = "Invalid Command ";
 
+	/**
+	 * Ctor.
+	 * @param m - the Model
+	 * @param v - the View
+	 */
 	public Presenter(Model m, View v) {
 		this.m = m;
 		this.v = v;
@@ -27,23 +41,43 @@ public class Presenter implements Observer{
 		initCommands();
 	}
 
+	/**
+	 * Gets the v.
+	 * @return the v
+	 */
 	public View getV() {
 		return v;
 	}
 
+	/**
+	 * Sets the view.
+	 * @param v - the new view
+	 */
 	public void setV(View v) {
 		this.v = v;
 	}
 
+	/**
+	 * Gets the model.
+	 * @return the model
+	 */
 	public Model getM() {
 		return m;
 	}
 
+	/**
+	 * Sets the model
+	 * @param m - the new model
+	 */
 	public void setM(Model m) {
 		this.m = m;
 	}
 
 	@Override
+	/**
+	 * Check if the message arrived from the model or from the view
+	 * then, call the right method to handle the update.
+	 */
 	public void update(Observable o, Object arg) {
 		if(o==this.m)
 		{
@@ -55,6 +89,10 @@ public class Presenter implements Observer{
 		}
 	}
 	
+	/**
+	 * Analyze model output.
+	 * @param obj the obj
+	 */
 	private void analyzeModelOutput(Object obj) {
 		if(obj instanceof Exception)
 		{
@@ -68,6 +106,10 @@ public class Presenter implements Observer{
 		}
 	}
 
+	/**
+	 * Analyze command.
+	 * @param input the input
+	 */
 	private void analyzeCommand(String input) {
 		try {
 			ArrayList<String> paramsList = new ArrayList<String>();
@@ -99,6 +141,9 @@ public class Presenter implements Observer{
 			}
 	}
 
+	/**
+	 * Inits the commands.
+	 */
 	private void initCommands() {
 		
 		commands.put("open the server", new Command() {

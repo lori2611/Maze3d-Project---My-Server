@@ -9,6 +9,11 @@ public class CLI extends CommonView {
 	private BufferedReader in;
 	private PrintWriter out;
 	
+	/**
+	 * Ctor
+	 * @param in - the BufferedReader
+	 * @param out - the PrintWriter
+	 */
 	public CLI(BufferedReader in,PrintWriter out) {
 		this.in = in;
 		this.out = out;
@@ -49,14 +54,21 @@ public class CLI extends CommonView {
 	}
 
 	@Override
+	/**
+	 * Display message
+	 */
 	public void displayMessage(String msg) {
 		out.println(msg);
 		out.flush();
 	}
 
 	@Override
+	/**
+	 * Display exception
+	 */
 	public void displayException(Exception e) {
-		e.printStackTrace();
+		out.println(e.getMessage());
+		out.flush();
 	}
 
 }

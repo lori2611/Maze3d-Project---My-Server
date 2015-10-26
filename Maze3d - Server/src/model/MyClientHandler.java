@@ -56,12 +56,18 @@ public class MyClientHandler implements ClientHandler {
 	}
 
 	@Override
+	/**
+	 * This method will check if the client's problem can be solved by the server
+	 * If it can - it will activate the right method
+	 */
 	public void handleClient(InputStream inFromClient, OutputStream outToClient) {
-			// Get client's Inputstream from client which contain maze and algorithm
+			// Get clients problem which contain title(String),and needed params.
 			try {
 				messageFromClient = new ObjectInputStream(inFromClient);
 				ArrayList<Object> problem = (ArrayList<Object>)messageFromClient.readObject();
 				messageToClient = new ObjectOutputStream(outToClient);
+				
+				// Check if the server knows the problem
 				if (problem.get(0).equals("solve")) {
 					handleSolution(problem);
 				}	
@@ -74,11 +80,15 @@ public class MyClientHandler implements ClientHandler {
 			}	
 	}
 	
+	/**
+	 * This method will create solution to the maze and return it to the client
+	 * @param list
+	 */
 	private void handleSolution(ArrayList<Object> list) {
 		
+		// Declare variables
 		String algorithm = (String) list.get(1);
 		Maze3d maze = (Maze3d) list.get(2);
-		// Create ObjectOutputStream to answer the client throw
 		
 		// Create solution for the maze in different thread
 		Future<Solution<Position>> sol = threadpool.submit(new Callable<Solution<Position>>() {
@@ -87,6 +97,8 @@ public class MyClientHandler implements ClientHandler {
 
 				Searcher<Position> algo = null;
 				Searchable<Position> sm = new Maze3dSearchable(maze);
+				
+				// Check for the right algorithm
 				if (algorithm.equals("bfs")) {
 					algo = new BFS<Position>();
 				} else if (algorithm.equals("manhattan")) {

@@ -12,10 +12,13 @@ public class GUI extends CommonView{
 	private HashMap<String,Listener> listeners;
 	private ServerWindow serverWindow;
 	
+	/**
+	 * Ctor
+	 */
 	public GUI() {
 		this.listeners = new HashMap<String,Listener>();
 		initListeners();
-		this.serverWindow = new ServerWindow(100, 100, "Welcome to the Server", listeners);
+		this.serverWindow = new ServerWindow(550, 250, "Welcome to the Server", listeners);
 	}
 	
 	private void initListeners() {
@@ -47,8 +50,11 @@ public class GUI extends CommonView{
 			
 			@Override
 			public void handleEvent(Event e) {
+				// Call the presenter to open the server
 				setChanged();
 				notifyObservers("open the server");
+				
+				// Disable the open button and enable the close button
 				serverWindow.setButtons(true);
 			}
 		});
@@ -57,6 +63,7 @@ public class GUI extends CommonView{
 			
 			@Override
 			public void handleEvent(Event e) {
+				// Call the presenter to close the server
 				setChanged();
 				notifyObservers("close the server");
 			}

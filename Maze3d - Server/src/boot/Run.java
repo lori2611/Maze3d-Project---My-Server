@@ -19,8 +19,8 @@ public class Run {
 		
 		// Create view
 		// CommonView v = new CLI(new BufferedReader(new InputStreamReader(System.in)), new PrintWriter(System.out));
-		
 		CommonView v = new GUI();
+		
 		// Create presenter
 		Presenter p = new Presenter(m, v);
 		
@@ -31,5 +31,4 @@ public class Run {
 		v.start();
 
 	}
-
 }
